@@ -4,7 +4,7 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
 require('dotenv').config();
-
+const db = require('./connection');
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
@@ -15,8 +15,8 @@ app.use('/public', express.static(process.cwd() + '/public'));
 
 app.use(cors({origin: '*'})); //USED FOR FCC TESTING PURPOSES ONLY!
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //Index page (static HTML)
 app.route('/')
@@ -36,6 +36,13 @@ app.use(function(req, res, next) {
     .type('text')
     .send('Not Found');
 });
+
+db.connectToServer(function (err) {
+  if (err) {
+    console.error(err);
+    process.exit();
+  }
+
 
 //Start our server and tests!
 const listener = app.listen(process.env.PORT || 3000, function () {
