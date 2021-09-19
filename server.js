@@ -1,7 +1,6 @@
 'use strict';
 
 const express     = require('express');
-const bodyParser  = require('body-parser');
 const cors        = require('cors');
 require('dotenv').config();
 const db = require('./connection');
@@ -43,21 +42,21 @@ db.connectToServer(function (err) {
     process.exit();
   }
 
-
-//Start our server and tests!
-const listener = app.listen(process.env.PORT || 3000, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-  if(process.env.NODE_ENV==='test') {
-    console.log('Running Tests...');
-    setTimeout(function () {
-      try {
-        runner.run();
-      } catch(e) {
-          console.log('Tests are not valid:');
-          console.error(e);
-      }
-    }, 1500);
-  }
+  //Start our server and tests!
+  const listener = app.listen(process.env.PORT || 3000, function () {
+    console.log('Your app is listening on port ' + listener.address().port);
+    if(process.env.NODE_ENV==='test') {
+      console.log('Running Tests...');
+      setTimeout(function () {
+        try {
+          runner.run();
+        } catch(e) {
+            console.log('Tests are not valid:');
+            console.error(e);
+        }
+      }, 1500);
+    }
+  });
 });
 
-module.exports = app; //for unit/functional testing
+module.exports = app; //for unit functional testing

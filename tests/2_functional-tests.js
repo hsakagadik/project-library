@@ -10,6 +10,7 @@ const chaiHttp = require('chai-http');
 const chai = require('chai');
 const assert = chai.assert;
 const server = require('../server');
+const Book = require('../models/book')
 
 chai.use(chaiHttp);
 
@@ -39,17 +40,17 @@ suite('Functional Tests', function() {
 
 
     suite('POST /api/books with title => create book object/expect book object', function() {
-      const title = "Faux Book 1";
+      const request = {title: "Faux Book 1"};
       test('Test POST /api/books with title', function(done) {
         chai.request(server)
         .post('/api/books')
-        .send(title)
+        .send(request)
         .end(function(err, res){
           assert.equal(res.status, 200);
-          assert.isArray(res.body, 'response should be an array');
-          assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
-          assert.property(res.body[0], 'title', 'Books in array should contain title');
-          assert.property(res.body[0], '_id', 'Books in array should contain _id');
+          assert.isObject(res.body, 'response should be an object');
+          assert.property(res.body, 'commentcount', 'Book should contain commentcount');
+          assert.property(res.body, 'title', 'Book should contain title');
+          assert.property(res.body, '_id', 'Book should contain _id');
           done();
         });
       });
@@ -57,11 +58,10 @@ suite('Functional Tests', function() {
       test('Test POST /api/books with no title given', function(done) {
         chai.request(server)
         .post('/api/books')
+        .send({})
         .end(function(err, res){
-          assert.equal(res.status, 200);
-          assert.isArray(res.body, 'response should be an array');
-          assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
-          assert.property(res.body[0], '_id', 'Books in array should contain _id');
+          assert.equal(res.status, 400);
+          assert.equal(res.text, 'missing required field title');
           done();
         });
       });
