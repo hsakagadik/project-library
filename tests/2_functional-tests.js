@@ -37,7 +37,7 @@ suite('Functional Tests', function() {
   */
 
   suite('Routing tests', function() {
-
+    let validBook;
 
     suite('POST /api/books with title => create book object/expect book object', function() {
       const request = {title: "Faux Book 1"};
@@ -51,6 +51,7 @@ suite('Functional Tests', function() {
           assert.property(res.body, 'commentcount', 'Book should contain commentcount');
           assert.property(res.body, 'title', 'Book should contain title');
           assert.property(res.body, '_id', 'Book should contain _id');
+          validBook = res.body;
           done();
         });
       });
@@ -60,7 +61,7 @@ suite('Functional Tests', function() {
         .post('/api/books')
         .send({})
         .end(function(err, res){
-          assert.equal(res.status, 400);
+          assert.equal(res.status, 200);
           assert.equal(res.text, 'missing required field title');
           done();
         });
@@ -86,15 +87,29 @@ suite('Functional Tests', function() {
       
     });
 
-
     suite('GET /api/books/[id] => book object with [id]', function(){
       
       test('Test GET /api/books/[id] with id not in db',  function(done){
-        //done();
+        chai.request(server)
+        .get('/api/books/1')
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'no book exists');
+          done();
+        });
       });
       
       test('Test GET /api/books/[id] with valid id in db',  function(done){
-        //done();
+        chai.request(server)
+        .get(`/api/books/${validBook._id}`)
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.isObject(res.body, 'response should be an object');
+          assert.property(res.body, 'commentcount', 'Books in array should contain commentcount');
+          assert.property(res.body, 'title', 'Books in array should contain title');
+          assert.property(res.body, '_id', 'Books in array should contain _id');
+          done();
+        });
       });
       
     });
