@@ -18,13 +18,13 @@ module.exports = function (app) {
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
 
       const database = client.getDb();
-      database.find({}).limit(50).toArray(function (err, result) {
-        if (err) {
-          res.status(400).send("Error fetching listings!");
-        } else {
-          res.json(result);
-        }
-      });
+      database.find({}).limit(50).toArray()
+        .then((books) => {
+          res.status(200).send(books);
+        })
+        .catch((err) => {
+          res.status(400).send(err);
+        });
     })
     
     .post(function (req, res){
