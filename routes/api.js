@@ -62,15 +62,15 @@ module.exports = function (app) {
 
   app.route('/api/books/:id')
     .get(function (req, res){
-      const bookId = new ObjectId(req.params.id);
+      const bookId = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
       const database = client.getDb();
-      database.findOne({_id: bookId}).limit(50).toArray()
+      database.findOne({"_id": ObjectId(bookId)})
         .then((book) => {
-          if(book.length > 0){
-            res.status(200).send(book);
-          } else {
+          if(book === null){
             res.status(200).send('no book exists');
+          } else {
+            res.status(200).send(book);            
           }
         })
         .catch((err) => {
@@ -83,7 +83,7 @@ module.exports = function (app) {
       const comment = req.body.comment;
       //json res format same as .get
       const database = client.getDb();
-      database.findOneAndUpdate({_id: bookId}, {$addToSet: {comment}})
+      database.findOneAndUpdate({"_id": ObjectId(bookId)}, {$addToSet: {comment}})
         .then((book) => {
           res.status(200).send(book);
         })
@@ -96,7 +96,7 @@ module.exports = function (app) {
       const bookId = req.params.id;
       //if successful response will be 'delete successful'
       const database = client.getDb();
-      database.deleteOne({_id: bookId})
+      database.deleteOne({"_id": ObjectId(bookId)})
         .then((book) => {
           if(book.deleteCount){
             res.status(200).send('delete sucessful');
