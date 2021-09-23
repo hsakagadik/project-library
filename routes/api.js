@@ -79,17 +79,25 @@ module.exports = function (app) {
     })
     
     .post(function(req, res){
-      const bookId = req.params.id;
-      const comment = req.body.comment;
-      //json res format same as .get
-      const database = client.getDb();
-      database.findOneAndUpdate({"_id": ObjectId(bookId)}, {$addToSet: {comment}})
+      if (req.body.comment === undefined){
+        res.send('missing required field comment');
+      } else {
+        const bookId = req.params.id;
+        const comment = req.body.comment;
+        //json res format same as .get
+        const database = client.getDb();
+        database.findOneAndUpdate({"_id": ObjectId(bookId)}, {$push: {comments: comment}, $inc: {commentcount: 1}})
         .then((book) => {
-          res.status(200).send(book);
+          if(book === null){
+            res.status(200).send('no book exists');
+          } else if (book.ok){
+            res.status(200).send(book.value);            
+          }
         })
         .catch((err) => {
           res.status(400).send(err);
         });
+      }
     })
     
     .delete(function(req, res){

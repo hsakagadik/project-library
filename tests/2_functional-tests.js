@@ -16,26 +16,6 @@ chai.use(chaiHttp);
 
 suite('Functional Tests', function() {
 
-  /*
-  * ----[EXAMPLE TEST]----
-  * Each test should completely test the response of the API end-point including response status code!
-  */
-  test('#example Test GET /api/books', function(done){
-     chai.request(server)
-      .get('/api/books')
-      .end(function(err, res){
-        assert.equal(res.status, 200);
-        assert.isArray(res.body, 'response should be an array');
-        assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
-        assert.property(res.body[0], 'title', 'Books in array should contain title');
-        assert.property(res.body[0], '_id', 'Books in array should contain _id');
-        done();
-      });
-  });
-  /*
-  * ----[END of EXAMPLE TEST]----
-  */
-
   suite('Routing tests', function() {
     let validBook;
 
@@ -91,7 +71,7 @@ suite('Functional Tests', function() {
       
       test('Test GET /api/books/[id] with id not in db',  function(done){
         chai.request(server)
-        .get('/api/books/1')
+        .get('/api/books/5f665eb46e296f6b9b6a504d')
         .end(function(err, res){
           assert.equal(res.status, 200);
           assert.equal(res.text, 'no book exists');
@@ -118,15 +98,43 @@ suite('Functional Tests', function() {
     suite('POST /api/books/[id] => add comment/expect book object with id', function(){
       
       test('Test POST /api/books/[id] with comment', function(done){
-        //done();
+        const comment = {comment: "someString"};
+        chai.request(server)
+        .post(`/api/books/${validBook._id}`)
+        .send(comment)
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.isObject(res.body, 'response should be an object');
+          assert.isArray(res.body.comments, 'comments should be an array');
+          assert.property(res.body, 'commentcount', 'Book should contain commentcount');
+          assert.property(res.body, 'comments', 'Book should contain commentcount');
+          assert.property(res.body, 'title', 'Book should contain title');
+          assert.property(res.body, '_id', 'Book should contain _id');
+          done();
+        });
       });
 
       test('Test POST /api/books/[id] without comment field', function(done){
-        //done();
+        chai.request(server)
+        .post(`/api/books/${validBook._id}`)
+        .send({})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'missing required field comment');
+          done();
+        });
       });
 
       test('Test POST /api/books/[id] with comment, id not in db', function(done){
-        //done();
+        const comment = {comment: "someString"};
+        chai.request(server)
+        .post('/api/books/5f665eb46e296f6b9b6a504d')
+        .send(comment)
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'no book exists');
+          done();
+        });
       });
       
     });
@@ -134,11 +142,29 @@ suite('Functional Tests', function() {
     suite('DELETE /api/books/[id] => delete book object id', function() {
 
       test('Test DELETE /api/books/[id] with valid id in db', function(done){
-        //done();
+        chai.request(server)
+        .delete(`/api/books/${validBook._id}`)
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'delete successful');
+          done();
+        });
       });
 
-      test('Test DELETE /api/books/[id] with  id not in db', function(done){
-        //done();
+      test('Test DELETE /api/books/[id] with id not in db', function(done){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, 'no book exists');
+        done();
+      });
+
+    });
+
+    suite('DELETE /api/books/ => delete all books in db', function() {
+
+      test('Test DELETE /api/books/ for delete all', function(done){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, 'complete delete successful');
+        done();
       });
 
     });

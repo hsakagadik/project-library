@@ -1,6 +1,5 @@
 const schema = {
     bsonType: "object",
-    required: [ "title" ],
     additionalProperties: false,
     properties: {
         _id: {
