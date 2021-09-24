@@ -152,19 +152,13 @@ suite('Functional Tests', function() {
       });
 
       test('Test DELETE /api/books/[id] with id not in db', function(done){
-        assert.equal(res.status, 200);
-        assert.equal(res.text, 'no book exists');
-        done();
-      });
-
-    });
-
-    suite('DELETE /api/books/ => delete all books in db', function() {
-
-      test('Test DELETE /api/books/ for delete all', function(done){
-        assert.equal(res.status, 200);
-        assert.equal(res.text, 'complete delete successful');
-        done();
+        chai.request(server)
+        .delete('/api/books/5f665eb46e296f6b9b6a504d')
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'no book exists');
+          done();
+        });
       });
 
     });

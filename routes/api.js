@@ -49,7 +49,7 @@ module.exports = function (app) {
       const database = client.getDb();
       database.deleteMany({})
         .then((book) => {
-          if(book.deleteCount > 0){
+          if(book.deletedCount > 0){
             res.status(200).send('complete delete successful');
           }
         })
@@ -57,8 +57,6 @@ module.exports = function (app) {
           res.status(400).send(err);
         });
     });
-
-
 
   app.route('/api/books/:id')
     .get(function (req, res){
@@ -86,9 +84,9 @@ module.exports = function (app) {
         const comment = req.body.comment;
         //json res format same as .get
         const database = client.getDb();
-        database.findOneAndUpdate({"_id": ObjectId(bookId)}, {$push: {comments: comment}, $inc: {commentcount: 1}})
+        database.findOneAndUpdate({"_id": ObjectId(bookId)}, {$push: {comments: comment}, $inc: {commentcount: 1}},{returnDocument: 'after'})
         .then((book) => {
-          if(book === null){
+          if(book.value === null){
             res.status(200).send('no book exists');
           } else if (book.ok){
             res.status(200).send(book.value);            
@@ -106,8 +104,10 @@ module.exports = function (app) {
       const database = client.getDb();
       database.deleteOne({"_id": ObjectId(bookId)})
         .then((book) => {
-          if(book.deleteCount){
-            res.status(200).send('delete sucessful');
+          if(book.deletedCount){
+            res.status(200).send('delete successful');
+          } else {
+            res.status(200).send('no book exists');
           }
         })
         .catch((err) => {
